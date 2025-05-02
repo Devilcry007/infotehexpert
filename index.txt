@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Служба поддержки пользователей</title>
+    <style>
+      :root {
+        --blue: #005a9c;
+        --orange: #ff6f31;
+        --light-bg: #f9f9f9;
+        --dark: #222;
+        --border-radius: 12px;
+        --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #fff;
+        color: var(--dark);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      header {
+        background: linear-gradient(to right, var(--blue), #003d6b);
+        color: white;
+        padding: 25px 0;
+        text-align: center;
+        position: relative;
+      }
+
+      .logo-link {
+        display: inline-block;
+        position: absolute;
+        top: 40px;
+        left: 60px;
+        z-index: 10;
+      }
+
+      .logo {
+        width: 80px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      header h1 {
+        margin-bottom: 10px;
+        font-size: 2rem;
+      }
+
+      .nav-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .nav-button {
+        background-color: var(--orange);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+      
+      .nav-button-link {
+        background-color: var(--orange);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .nav-button:hover, .nav-button-link:hover {
+        background-color: #e05b24;
+      }
+
+      /* Поиск */
+      .search-box {
+        max-width: 600px;
+        margin: 20px auto;
+        display: flex;
+        gap: 10px;
+        padding: 0 20px;
+      }
+
+      .search-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+      }
+
+      .search-btn {
+        padding: 10px 20px;
+        background-color: var(--blue);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+      }
+
+      /* Основной контент */
+      .main-content {
+        display: flex;
+        flex: 1;
+        padding: 20px;
+        flex-wrap: wrap;
+      }
+
+      .team-section {
+        width: 30%;
+        padding: 20px;
+        border-right: 1px solid #ddd;
+      }
+
+      .team-member {
+        margin-bottom: 30px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .team-member:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow);
+      }
+
+      .team-photo {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid var(--blue);
+        margin-bottom: 10px;
+      }
+
+      .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .news-section {
+        width: 60%;
+        padding: 20px;
+      }
+
+      .calendar-section {
+        width: 40%;
+        padding: 20px;
+      }
+
+      /* Стили календаря */
+      .calendar-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        width: 100%;
+      }
+      
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      
+      .month-year {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--blue);
+      }
+      
+      .nav-buttons-calendar button {
+        background-color: var(--orange);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 14px;
+      }
+      
+      .nav-buttons-calendar button:hover {
+        background-color: #e05b24;
+      }
+      
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+      }
+      
+      .day-header {
+        text-align: center;
+        font-weight: bold;
+        padding: 8px;
+        color: var(--blue);
+        font-size: 14px;
+      }
+      
+      .day {
+        position: relative;
+        height: 70px;
+        background-color: var(--light-bg);
+        border-radius: 5px;
+        padding: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+        overflow: hidden;
+        border: 1px solid #eee;
+      }
+      
+      .day:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+      }
+      
+      .day-number {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      
+      .event-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin: 2px auto;
+      }
+      
+      .event-popup {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 180px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: var(--shadow);
+        padding: 12px;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+        border: 1px solid #ddd;
+      }
+      
+      .day:hover .event-popup {
+        opacity: 1;
+        visibility: visible;
+        top: calc(100% + 8px);
+      }
+      
+      .event-popup h4 {
+        margin-top: 0;
+        color: var(--blue);
+        font-size: 14px;
+      }
+      
+      .event-popup p {
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+      
+      .register-btn {
+        background-color: var(--orange);
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-top: 8px;
+        transition: background-color 0.3s;
+      }
+      
+      .register-btn:hover {
+        background-color: #e05b24;
+      }
+      
+      .empty-day {
+        background-color: transparent;
+        cursor: default;
+        border: none;
+      }
+      
+      .empty-day:hover {
+        transform: none;
+        box-shadow: none;
+      }
+      
+      /* Цвета для разных типов мероприятий */
+      .event-type-1 { background-color: var(--blue); } /* Основной синий */
+      .event-type-2 { background-color: var(--orange); } /* Оранжевый */
+      .event-type-3 { background-color: #4CAF50; } /* Зеленый */
+      .event-type-4 { background-color: #9C27B0; } /* Фиолетовый */
+
+      /* Новости с анимацией */
+      .news-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: var(--light-bg);
+        border-radius: 5px;
+        border-left: 4px solid var(--blue);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .news-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow);
+      }
+
+      .news-date {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
+
+      .news-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: var(--blue);
+      }
+
+      /* Нижние блоки в одну строку */
+      .bottom-sections {
+        display: flex;
+        gap: 20px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+      .bottom-section {
+        flex: 1;
+        min-width: 250px;
+        transition: transform 0.3s ease;
+      }
+
+      .bottom-section:hover {
+        transform: translateY(-3px);
+      }
+
+      /* FAQ */
+      details {
+        margin-bottom: 15px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 10px 20px;
+        transition: transform 0.3s ease;
+      }
+
+      details:hover {
+        transform: translateY(-3px);
+      }
+
+      summary {
+        font-weight: bold;
+        cursor: pointer;
+        padding: 10px;
+      }
+
+      /* База знаний */
+      .knowledge-links {
+        background: white;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+      }
+
+      .knowledge-links:hover {
+        transform: translateY(-3px);
+      }
+
+      .knowledge-links ul {
+        list-style: none;
+      }
+
+      .knowledge-links li {
+        margin-bottom: 10px;
+      }
+
+      .knowledge-links a {
+        color: var(--blue);
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .knowledge-links a:hover {
+        color: var(--orange);
+        text-decoration: underline;
+      }
+
+      /* Панель поддержки */
+      .support-panel {
+        position: fixed;
+        bottom: 60px;
+        right: 20px;
+        width: 250px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transform: translateY(150%);
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        overflow: hidden;
+      }
+
+      .support-panel.active {
+        transform: translateY(0);
+      }
+
+      .support-header {
+        background: var(--orange);
+        color: white;
+        padding: 12px 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .support-header h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .close-panel {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+
+      .support-content {
+        padding: 20px;
+      }
+
+      /* Кнопка "Написать нам" */
+      .floating-contact {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--orange);
+        color: white;
+        padding: 12px 20px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        z-index: 999;
+        transition: all 0.3s ease;
+        border: none;
+        font-weight: bold;
+      }
+
+      .floating-contact:hover {
+        background-color: #e05b24;
+        transform: translateY(-3px);
+      }
+
+      footer {
+        background-color: #111;
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+      }
+
+      @media (max-width: 1200px) {
+        .news-section {
+          width: 100%;
+        }
+        
+        .calendar-section {
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .main-content,
+        .news-section,
+        .team-section {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid #ddd;
+        }
+
+        .team-section {
+          order: -1;
+        }
+
+        .support-panel {
+          width: 50%;
+          max-width: 300px;
+          right: 10px;
+          bottom: 70px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .support-panel {
+          width: 60%;
+          max-width: none;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .support-panel {
+          width: 80%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Панель поддержки -->
+    <div class="support-panel" id="supportPanel">
+      <div class="support-header" id="panelHeader">
+        <h3>Написать в поддержку</h3>
+        <button class="close-panel" id="closePanel">&times;</button>
+      </div>
+      <div class="support-content">
+        <form
+          class="contact-form"
+          id="supportForm"
+          action="mailto:shepelin@iprosoft.ru"
+          method="post"
+          enctype="text/plain"
+        >
+          <input type="text" name="name" placeholder="Ваше имя" required />
+          <input type="email" name="email" placeholder="Email" required />
+          <textarea
+            name="message"
+            placeholder="Опишите вашу проблему..."
+            required
+          ></textarea>
+          <button type="submit">Отправить</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <a href="https://stroyka.cntd.ru/lider/" class="logo-link">
+        <img
+          src="C:\Users\Devilcry_Y\Desktop\Сайт для работы\major\icon\tehexpert.png"
+          alt="Логотип компании"
+          class="logo"
+        />
+      </a>
+      <h1>Служба поддержки пользователей</h1>
+      <div class="nav-buttons">
+        <button class="nav-button">Перейти в Техэксперт</button>
+        <button class="nav-button">Задать вопрос в СПП</button>
+        <a href="training.html" class="nav-button-link">Записаться на обучение</a>
+      </div>
+    </header>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+      <!-- Команда -->
+      <div class="team-section">
+        <h2 style="margin-bottom: 20px">Наша команда</h2>
+
+        <div class="team-member">
+          <img
+            src="C:\Users\Devilcry_Y\Desktop\Сайт для работы\major\foto\kate.jpg"
+            alt="Фото специалиста"
+            class="team-photo"
+          />
+          <h3 style="font-size: 1.1em; margin: 8px 0">
+            Демидова Екатерина Владимировна
+          </h3>
+          <p style="margin: 4px 0; font-size: 0.95em">
+            Руководитель отдела сервиса
+          </p>
+          <p style="margin: 4px 0; color: #555">demidova@iprosoft.ru</p>
+          <p style="margin: 4px 0; color: #555">8-800-222-45-43</p>
+        </div>
+
+        <div class="team-member">
+          <img
+            src="C:\Users\Devilcry_Y\Desktop\Сайт для работы\major\foto\alex.jpg"
+            alt="Фото специалиста"
+            class="team-photo"
+          />
+          <h3 style="font-size: 1.1em; margin: 8px 0">
+            Гречко Алексей Сергеевич
+          </h3>
+          <p style="margin: 4px 0; font-size: 0.95em">
+            Руководитель технической службы поддержки
+          </p>
+          <p style="margin: 4px 0; color: #555">grechkoAS@iprosoft.ru</p>
+          <p style="margin: 4px 0; color: #555">8-800-222-45-431</p>
+        </div>
+
+        <div class="team-member">
+          <img
+            src="C:\Users\Devilcry_Y\Desktop\Сайт для работы\major\foto\know.jpg"
+            alt="Фото специалиста"
+            class="team-photo"
+          />
+          <h3 style="font-size: 1.1em; margin: 8px 0">
+            Сидоров Алексей Викторович
+          </h3>
+          <p style="margin: 4px 0; font-size: 0.95em">Технический эксперт</p>
+          <p style="margin: 4px 0; color: #555">sidorov@example.com</p>
+          <p style="margin: 4px 0; color: #555">8-800-222-45-43</p>
+        </div>
+
+        <div class="team-member">
+          <img
+            src="C:\Users\Devilcry_Y\Desktop\Сайт для работы\major\foto\know2.jpg"
+            alt="Фото специалиста"
+            class="team-photo"
+          />
+          <h3 style="font-size: 1.1em; margin: 8px 0">
+            Кузнецова Елена Дмитриевна
+          </h3>
+          <p style="margin: 4px 0; font-size: 0.95em">Менеджер поддержки</p>
+          <p style="margin: 4px 0; color: #555">kuznetsova@example.com</p>
+          <p style="margin: 4px 0; color: #555">8-800-222-45-43</p>
+        </div>
+
+        <div class="team-member">
+          <img
+            src="C:\Users\Devilcry_Y\Desktop\Сайт для работы\major\foto\know3.jpg"
+            alt="Фото специалиста"
+            class="team-photo"
+          />
+          <h3 style="font-size: 1.1em; margin: 8px 0">
+            Васильев Денис Олегович
+          </h3>
+          <p style="margin: 4px 0; font-size: 0.95em">Технический писатель</p>
+          <p style="margin: 4px 0; color: #555">vasilev@example.com</p>
+          <p style="margin: 4px 0; color: #555">8-800-222-45-43</p>
+        </div>
+      </div>
+
+      <!-- Новости и календарь -->
+      <div class="content-wrapper">
+        <!-- Новости -->
+        <div class="news-section">
+          <h2 style="margin-bottom: 20px">Новости и обучение</h2>
+
+          <div class="news-item">
+            <div class="news-date">15 мая 2025</div>
+            <div class="news-title">Обновление системы Техэксперт</div>
+            <div class="news-text">
+              Состоялось обновление системы до версии 2.5. В новой версии
+              добавлены функции автоматического анализа технической документации.
+            </div>
+          </div>
+
+          <div class="news-item">
+            <div class="news-date">22 мая 2025</div>
+            <div class="news-title">Запись на обучение</div>
+            <div class="news-text">
+              Открыта запись на базовый курс по работе с системой Техэксперт.
+              Обучение пройдет 5-7 июня в онлайн-формате.
+            </div>
+          </div>
+
+          <div class="news-item">
+            <div class="news-date">30 мая 2025</div>
+            <div class="news-title">Изменения в СПП</div>
+            <div class="news-text">
+              Обновлен интерфейс системы поддержки пользователей. Теперь вы можете
+              прикреплять несколько файлов к одному запросу.
+            </div>
+          </div>
+
+          <!-- Нижние блоки в одну строку -->
+          <div class="bottom-sections">
+            <!-- FAQ -->
+            <div class="bottom-section">
+              <h2 style="margin-bottom: 15px">FAQ</h2>
+              <details>
+                <summary>Как работает система?</summary>
+                <p>
+                  Перейдите в Личный кабинет → Забыли пароль? → Введите email и
+                  следуйте инструкции.
+                </p>
+              </details>
+              <details>
+                <summary>Как связаться с поддержкой?</summary>
+                <p>Нажмите кнопку "Написать нам" в правом нижнем углу.</p>
+              </details>
+              <details>
+                <summary>Как прикрепить файл к запросу?</summary>
+                <p>
+                  При заполнении формы укажите документы через кнопку «Прикрепить
+                  файл».
+                </p>
+              </details>
+            </div>
+
+            <!-- Полезное -->
+            <div class="bottom-section">
+              <h2 style="margin-bottom: 15px">Полезное</h2>
+              <div class="knowledge-links">
+                <ul>
+                  <li><a href="#">Пользовательское руководство PDF</a></li>
+                  <li><a href="#">Видеоуроки по использованию СПП</a></li>
+                  <li><a href="#">Онлайн-чат технической поддержки</a></li>
+                  <li><a href="#">Порядок регистрации в системе</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Календарь -->
+        <div class="calendar-section">
+          <h2 style="margin-bottom: 20px">Календарь мероприятий</h2>
+          <div class="calendar-container" id="calendar-container">
+            <div class="calendar-header">
+              <div class="month-year">Май 2025</div>
+              <div class="nav-buttons-calendar">
+                <button id="prev-month">←</button>
+                <button id="next-month">→</button>
+              </div>
+            </div>
+            
+            <div class="calendar-grid" id="calendar-grid">
+              <!-- Дни недели -->
+              <div class="day-header">Пн</div>
+              <div class="day-header">Вт</div>
+              <div class="day-header">Ср</div>
+              <div class="day-header">Чт</div>
+              <div class="day-header">Пт</div>
+              <div class="day-header">Сб</div>
+              <div class="day-header">Вс</div>
+              
+              <!-- Дни календаря будут добавлены с помощью JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Кнопка "Написать нам" -->
+    <button class="floating-contact" id="openSupportBtn">Написать нам</button>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2023 Служба технической поддержки. Все права защищены.</p>
+    </footer>
+
+    <script>
+      // Управление панелью поддержки
+      const panel = document.getElementById("supportPanel");
+      const openBtn = document.getElementById("openSupportBtn");
+      const closeBtn = document.getElementById("closePanel");
+      const panelHeader = document.getElementById("panelHeader");
+      const form = document.getElementById("supportForm");
+
+      // Показываем панель при загрузке
+      window.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          panel.classList.add("active");
+        }, 1000);
+      });
+
+      // Открытие панели
+      openBtn.addEventListener("click", () => {
+        panel.classList.add("active");
+      });
+
+      // Закрытие панели
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        panel.classList.remove("active");
+      });
+
+      // Закрытие при клике на заголовок
+      panelHeader.addEventListener("click", () => {
+        panel.classList.remove("active");
+      });
+
+      // Обработка формы
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Сообщение отправлено! Мы свяжемся с вами в ближайшее время.");
+        form.reset();
+        panel.classList.remove("active");
+      });
+
+      // Сохраняем данные формы
+      closeBtn.addEventListener("click", () => {
+        const formData = new FormData(form);
+        localStorage.setItem(
+          "supportFormData",
+          JSON.stringify(Object.fromEntries(formData))
+        );
+      });
+
+      // Восстанавливаем данные
+      openBtn.addEventListener("click", () => {
+        const savedData = localStorage.getItem("supportFormData");
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          form.elements.name.value = data.name || "";
+          form.elements.email.value = data.email || "";
+          form.elements.message.value = data.message || "";
+        }
+      });
+
+      // Код для календаря
+      document.addEventListener('DOMContentLoaded', function() {
+          // Текущая дата
+          let currentDate = new Date();
+          let currentMonth = currentDate.getMonth();
+          let currentYear = currentDate.getFullYear();
+          
+          // Мероприятия (пример данных)
+          const events = {
+              '2025-5-10': [
+                  {
+                      title: 'Введение в веб-разработку',
+                      time: '10:00 - 12:00',
+                      type: 1,
+                      description: 'Базовый курс по HTML, CSS и JavaScript для начинающих.'
+                  }
+              ],
+              '2025-5-15': [
+                  {
+                      title: 'Продвинутый JavaScript',
+                      time: '14:00 - 16:00',
+                      type: 2,
+                      description: 'Изучение продвинутых концепций JavaScript.'
+                  },
+                  {
+                      title: 'Фреймворки фронтенда',
+                      time: '16:30 - 18:30',
+                      type: 2,
+                      description: 'Сравнение React, Vue и Angular.'
+                  }
+              ],
+              '2025-5-20': [
+                  {
+                      title: 'Дизайн интерфейсов',
+                      time: '11:00 - 13:00',
+                      type: 3,
+                      description: 'Основы UX/UI дизайна для разработчиков.'
+                  }
+              ],
+              '2025-5-25': [
+                  {
+                      title: 'Backend разработка',
+                      time: '15:00 - 17:00',
+                      type: 4,
+                      description: 'Введение в Node.js и базы данных.'
+                  }
+              ]
+          };
+          
+          // Функция для генерации календаря
+          function generateCalendar(month, year) {
+              const calendarGrid = document.getElementById('calendar-grid');
+              
+              // Очищаем предыдущие дни (оставляем только заголовки дней недели)
+              while (calendarGrid.children.length > 7) {
+                  calendarGrid.removeChild(calendarGrid.lastChild);
+              }
+              
+              // Обновляем заголовок месяца
+              const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+              document.querySelector('.month-year').textContent = `${monthNames[month]} ${year}`;
+              
+              // Первый день месяца
+              const firstDay = new Date(year, month, 1);
+              // Последний день месяца
+              const lastDay = new Date(year, month + 1, 0);
+              // День недели первого дня месяца (0 - воскресенье, 1 - понедельник и т.д.)
+              const firstDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+              
+              // Добавляем пустые ячейки для дней предыдущего месяца
+              for (let i = 0; i < firstDayOfWeek; i++) {
+                  const emptyDay = document.createElement('div');
+                  emptyDay.className = 'day empty-day';
+                  calendarGrid.appendChild(emptyDay);
+              }
+              
+              // Добавляем дни текущего месяца
+              for (let day = 1; day <= lastDay.getDate(); day++) {
+                  const date = new Date(year, month, day);
+                  const dateKey = `${year}-${month + 1}-${day}`;
+                  const dayEvents = events[dateKey] || [];
+                  
+                  const dayElement = document.createElement('div');
+                  dayElement.className = 'day';
+                  dayElement.innerHTML = `
+                      <div class="day-number">${day}</div>
+                      ${dayEvents.map(event => `<div class="event-indicator event-type-${event.type}"></div>`).join('')}
+                      <div class="event-popup">
+                          ${dayEvents.map(event => `
+                              <h4>${event.title}</h4>
+                              <p>${event.time}</p>
+                              <p>${event.description}</p>
+                          `).join('<hr>')}
+                          ${dayEvents.length > 0 ? `<button class="register-btn">Зарегистрироваться</button>` : ''}
+                      </div>
+                  `;
+                  
+                  // Добавляем обработчик клика для записи
+                  if (dayEvents.length > 0) {
+                      dayElement.querySelector('.register-btn')?.addEventListener('click', function(e) {
+                          e.stopPropagation();
+                          window.location.href = "training.html?event=" + encodeURIComponent(dayEvents[0].title);
+                      });
+                  }
+                  
+                  calendarGrid.appendChild(dayElement);
+              }
+          }
+          
+          // Инициализация календаря
+          generateCalendar(currentMonth, currentYear);
+          
+          // Обработчики кнопок навигации
+          document.getElementById('prev-month').addEventListener('click', function() {
+              currentMonth--;
+              if (currentMonth < 0) {
+                  currentMonth = 11;
+                  currentYear--;
+              }
+              generateCalendar(currentMonth, currentYear);
+          });
+          
+          document.getElementById('next-month').addEventListener('click', function() {
+              currentMonth++;
+              if (currentMonth > 11) {
+                  currentMonth = 0;
+                  currentYear++;
+              }
+              generateCalendar(currentMonth, currentYear);
+          });
+      });
+    </script>
+  </body>
+</html>
